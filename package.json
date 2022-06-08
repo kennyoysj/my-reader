@@ -1,0 +1,287 @@
+{
+	"name": "my-reader",
+	"displayName": "my-reader",
+	"description": "基于z-reader二次开发的插件,支持在线搜索(已修复,增加了新的书源)和本地阅读,支持txt格式,基于z-reader",
+	"engines": {
+		"vscode": "^1.67.0"
+	},
+	"publisher": "kennyOu",
+	"license": "MIT",
+	"version": "1.0.4",
+	"icon": "static/images/icon-green.png",
+	"qna": "https://github.com/kennyoysj/my-reader/issues",
+	"bugs": {
+		"url": "https://github.com/kennyoysj/my-reader/issues",
+		"email": "aooiu@qq.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kennyoysj/my-reader"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "z-reader.command.refresh",
+				"title": "本地",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.searchOnline",
+				"title": "在线",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.openLocalDirectory",
+				"title": "打开本地文件目录",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.setOnlineSite",
+				"title": "更改在线网站来源",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.setEncoding",
+				"title": "设置编码",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.setChapterOrder",
+				"title": "设置章节显示顺序",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.collectList",
+				"title": "收藏",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.editCollectList",
+				"title": "编辑收藏列表",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.collectBook",
+				"title": "收藏本书",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.cancelCollect",
+				"title": "取消收藏",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.clearCollect",
+				"title": "清空收藏",
+				"category": "z-reader"
+			},
+			{
+				"command": "z-reader.command.reLoadCookie",
+				"title": "重新加载cookie设置",
+				"category": "z-reader"
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "treeView",
+					"title": "小说",
+					"icon": "static/images/icon.svg"
+				}
+			]
+		},
+		"views": {
+			"treeView": [
+				{
+					"id": "z-reader-menu",
+					"name": "目录"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "z-reader.command.collectList",
+					"when": "view == z-reader-menu",
+					"group": "navigation@1"
+				},
+				{
+					"command": "z-reader.command.refresh",
+					"when": "view == z-reader-menu",
+					"group": "navigation@2"
+				},
+				{
+					"command": "z-reader.command.searchOnline",
+					"when": "view == z-reader-menu",
+					"group": "navigation@3"
+				},
+				{
+					"command": "z-reader.command.openLocalDirectory",
+					"when": "view == z-reader-menu",
+					"group": "custom@1"
+				},
+				{
+					"command": "z-reader.command.setOnlineSite",
+					"when": "view == z-reader-menu",
+					"group": "custom@2"
+				},
+				{
+					"command": "z-reader.command.setEncoding",
+					"when": "view == z-reader-menu",
+					"group": "custom@3"
+				},
+				{
+					"command": "z-reader.command.setChapterOrder",
+					"when": "view == z-reader-menu",
+					"group": "custom@4"
+				},
+				{
+					"command": "z-reader.command.editCollectList",
+					"when": "view == z-reader-menu",
+					"group": "custom@5"
+				},
+				{
+					"command": "z-reader.command.clearCollect",
+					"when": "view == z-reader-menu",
+					"group": "custom@6"
+				},
+				{
+					"command": "z-reader.command.reLoadCookie",
+					"when": "view == z-reader-menu",
+					"group": "custom@7"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "z-reader.command.openLocalDirectory",
+					"when": "view == z-reader-menu && zreader.panel == local",
+					"group": "custom-item@1"
+				},
+				{
+					"command": "z-reader.command.setOnlineSite",
+					"when": "view == z-reader-menu && zreader.panel == online",
+					"group": "custom-item@2"
+				},
+				{
+					"command": "z-reader.command.collectBook",
+					"when": "view == z-reader-menu && zreader.panel != collect",
+					"group": "custom-item@3"
+				},
+				{
+					"command": "z-reader.command.cancelCollect",
+					"when": "view == z-reader-menu && zreader.panel == collect",
+					"group": "custom-item@4"
+				}
+			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "z-reader",
+			"properties": {
+				"z-reader.fileDir": {
+					"type": "string",
+					"description": "本地小说目录"
+				},
+				"z-reader.onlineSite": {
+					"type": "string",
+					"default": "起点",
+					"enum": [
+						"起点",
+						"笔趣阁",
+						"玫瑰小说"
+					],
+					"description": "在线搜索来源网站"
+				},
+				"z-reader.encoding": {
+					"type": "string",
+					"default": "utf8",
+					"enum": [
+						"utf8",
+						"gbk"
+					],
+					"description": "txt文件打开编码"
+				},
+				"z-reader.chapterOrder": {
+					"type": "string",
+					"default": "顺序",
+					"enum": [
+						"顺序",
+						"倒序"
+					],
+					"description": "章节显示顺序"
+				},
+				"z-reader.readerViewTitle": {
+					"type": "string",
+					"default": "${name}",
+					"markdownDescription": "根据阅读内容控制窗口标题。`${name}`变量可替换为章节标题"
+				},
+				"z-reader.cookies": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"url": {
+								"type": "string",
+								"markdownDescription": "`tough.CookieJar.setCookieSync()` 传入的url"
+							},
+							"cookie": {
+								"type": "string",
+								"markdownDescription": "`tough.CookieJar.setCookieSync()` 传入的cookie"
+							}
+						}
+					},
+					"markdownDescription": "设置cookie, 插件在请求时会根据配置携带cookie"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run package",
+		"compile": "webpack",
+		"watch": "webpack --watch",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "npm run compile-tests && npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/adm-zip": "^0.5.0",
+		"@types/glob": "^7.2.0",
+		"@types/got": "^9.6.9",
+		"@types/mocha": "^9.1.1",
+		"@types/node": "14.x",
+		"@types/vscode": "^1.67.0",
+		"@typescript-eslint/eslint-plugin": "^5.21.0",
+		"@typescript-eslint/parser": "^5.21.0",
+		"@vscode/test-electron": "^2.1.3",
+		"eslint": "^8.14.0",
+		"glob": "^8.0.1",
+		"mocha": "^9.2.2",
+		"ts-loader": "^9.2.8",
+		"typescript": "^4.6.4",
+		"vscode-test": "^1.2.0",
+		"webpack": "^5.70.0",
+		"webpack-cli": "^4.9.2"
+	},
+	"dependencies": {
+		"adm-zip": "^0.5.9",
+		"cheerio": "^1.0.0-rc.3",
+		"got": "^9.6.0",
+		"hpagent": "^0.1.2",
+		"iconv-lite": "^0.5.0",
+		"node-stream-zip": "^1.15.0",
+		"open": "^7.0.0",
+		"p-event": "^5.0.1",
+		"tough-cookie": "^4.0.0",
+		"tslib": "^2.3.0"
+	}
+}

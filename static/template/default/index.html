@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title></title>
+    <link rel="stylesheet" href="@./style.css" />
+  </head>
+
+  <body>
+    <div id="app">
+      <ul id="contextmenu" style="display: none">
+        <li><a data-cmd-param='{"cmd": "lastChapter"}'>上一章</a></li>
+        <li><a data-cmd-param='{"cmd": "nextChapter"}'>下一章</a></li>
+        <li class="divided"></li>
+        <li><a data-cmd-param='{"cmd": "editStyle"}'>样式编辑</a></li>
+        <li><a data-cmd-param='{"cmd": "editHtml"}'>页面编辑</a></li>
+        <li><a data-cmd-param='{"cmd": "goProgress"}'>进度跳转</a></li>
+        <li><a data-cmd-param='{"cmd": "replaceAll"}'>净化</a></li>
+      </ul>
+      <!-- 修改此处改变文本字体大小 -->
+      <div class="content" id= "text_content" style="font-size: 14px">{{content}}</div>
+    </div>
+    <script>
+      (function () {
+        var tontentDiv_ = document.getElementById("text_content")
+        var contentDiv = document.querySelector('.content');
+        var VscodeHelper = function () {
+          this.vscode = typeof acquireVsCodeApi === 'function' ? acquireVsCodeApi() : {};
+        };
+        VscodeHelper.prototype.on = function (cmd, data = {}) {
+          console.log('postMessage', arguments);
+          if (typeof this.vscode.postMessage === 'undefined') {
+            return;
+          }
+          this.vscode.postMessage({
+            command: cmd,
+            data: data
+          });
+        };
+        var mVscodeHelper = new VscodeHelper();
+
+        var throttle = function (fn, interval = 500) {
+          var timer = null;
+          var firstTime = true;
+          return function (...args) {
+            if (firstTime) {
+              fn.apply(this, args);
+              return (firstTime = false);
+            }
+            if (timer) {
+              return;
+            }
+            timer = setTimeout(() => {
+              clearTimeout(timer);
+              timer = null;
+              fn.apply(this, args);
+            }, interval);
+          };
+        };
+
+        mVscodeHelper.on('onload');
+
+        document.addEventListener('click', function (event) {
+          var menu = document.querySelector('#contextmenu');
+          menu.style.display = 'none';
+        });
+        // 绑定通用事件
+        document.querySelectorAll('[data-cmd-param]').forEach(function (d) {
+          d.addEventListener('click', function (event) {
+            const dataset = JSON.parse(this.dataset.cmdParam);
+            mVscodeHelper.on(dataset.cmd, dataset.data || {});
+          });
+        });
+        document.oncontextmenu = function (event) {
+          var menu = document.querySelector('#contextmenu');
+          var event = event || window.event;
+          menu.style.display = 'block';
+          menu.style.left = event.clientX + 'px';
+          menu.style.top = event.clientY + 'px';
+          return false;
+        };
+        window.addEventListener('message', function (event) {
+          var message = event.data;
+          if (!message.command) {
+            return;
+          }
+          switch (message.command) {
+            case 'setText':
+              let text = message.data;
+              setText(text);
+              break;
+            case 'goProgress':
+              goProgress(message.data);
+              break;
+            case 'replaceAll':
+              replaceAll();
+              break;
+            default:
+              break;
+          }
+        });
+        var replaceAll = function() {
+          let content = contentDiv.innerHTML;
+          // 网页端内容净化处理
+          content = content.replaceAll("/(?i)\n(?:——|===+)(?:\n[\S\s]{1,99})$|\n第\w{1,7}[章节话折卷部集](?:\h+[^\n]+)?(?:\n[^\n]{0,8}[\u4e00-\u9fa5]){0,2}(?=\n)|\n[【（]?(?:PS\d?|作者的话)[：:][^\n]*(?:\n[^\n]+){0,4}$|(?<=[。！？（）【】])\bPS\d?[：:](?:[^\n“]+(?=”)|[^\n（]+(?=）)|[^\n【]+(?=】)|[^\n]+(?=\n|$))|\n(?:PS\d?[：:][^\n]+)(?=\n)|(?<=[^\n）】：])\n[【（][^\n【】（）]+(?:\n[^\n【】（）]+)?[）】]$|\n[^\n]*(?:公众号|推荐票|月票|加更|推荐\S{0,11}[《书])[^\n]*$|(?mi)\n(?:您可以在百度里|下载后请在24小时|点此章节报错|请记住本书首发|本书版权归|每天更新时间|新书期间|当前网址|#送\d+现金红包#|广个告，|(?:本书)?仅供个人学习|感谢[^\n]*(?:投出|灌溉)[^\n]+小天使|本书由\S{1,11}收集|喜欢\S{1,19}?请大家收藏)[^\n]*$|\n[^\n]+(?:[退支][出持]阅读模式！|领现金红包！)$|\n[^\n]*(?:[今明][天日早晚][一二两三四五六七八九十加补爆]更(?!天)|[今明][天晚]的更新|求勒个票|新书上传|起点APP|阅读网址|本站访问地址|秒钟记住本小说|本作品来自|更多好书请访|如果觉得此文|向您QQ群和微博|看书即可领现金|书[币友]的?打赏|无弹窗免费|精校小说|全文字小说|按键返回上一页|作者的话：|书友\w{0,5}群：|微信\w{2}号：|\b测试章节！|亲\W本站域名|书籍全\W更新快|加入书签\W方便阅读|章节错误\W点此报送|最快更新\W无弹窗|文字更新\W速度|本章未完\W点击|版权所有\W侵权|最快更新\S{0,16}?最新章|公众号\S{0,16}?领红包)[^\n]*$/g","");
+          content_old = content.replaceAll("\n","<br>");
+          content = content_old.replaceAll("<br><br><br>","<br><br>");
+          while(content_old !== content) {
+            content_old = content
+            content = content_old.replaceAll("<br><br><br>","<br><br>");
+          }
+          contentDiv.innerHTML = content;
+        };
+        replaceAll();
+        // 更新进度
+        var goProgress = function (data) {
+          contentDiv.scrollTop = contentDiv.scrollHeight * new Number(data.progress || 0);
+        };
+        goProgress({ progress: '{{ progress }}' });
+        // 处理小说进度
+        if (contentDiv) {
+          // 鼠标滚轮事件
+          var contentDivOnWheel = function (e) {
+            // 滚动一屏
+            // e.deltaY > 0 ? contentDiv.scrollTop += contentDiv.style.height.replace('px', '') : contentDiv.scrollTop -= contentDiv.style.height.replace('px', '');
+            // 字体放大缩小
+            if (e.ctrlKey || e.altKey) {
+              e.preventDefault();
+              if (e.deltaY < 0) {
+                contentDiv.style.fontSize = Number(contentDiv.style.fontSize.replace('px', '')) + 1 + 'px';
+              } else {
+                contentDiv.style.fontSize = Number(contentDiv.style.fontSize.replace('px', '')) - 1 + 'px';
+                // let content = contentDiv.innerHTML;
+                // content = content.replaceAll("/(?i)\n(?:——|===+)(?:\n[\S\s]{1,99})$|\n第\w{1,7}[章节话折卷部集](?:\h+[^\n]+)?(?:\n[^\n]{0,8}[\u4e00-\u9fa5]){0,2}(?=\n)|\n[【（]?(?:PS\d?|作者的话)[：:][^\n]*(?:\n[^\n]+){0,4}$|(?<=[。！？（）【】])\bPS\d?[：:](?:[^\n“]+(?=”)|[^\n（]+(?=）)|[^\n【]+(?=】)|[^\n]+(?=\n|$))|\n(?:PS\d?[：:][^\n]+)(?=\n)|(?<=[^\n）】：])\n[【（][^\n【】（）]+(?:\n[^\n【】（）]+)?[）】]$|\n[^\n]*(?:公众号|推荐票|月票|加更|推荐\S{0,11}[《书])[^\n]*$|(?mi)\n(?:您可以在百度里|下载后请在24小时|点此章节报错|请记住本书首发|本书版权归|每天更新时间|新书期间|当前网址|#送\d+现金红包#|广个告，|(?:本书)?仅供个人学习|感谢[^\n]*(?:投出|灌溉)[^\n]+小天使|本书由\S{1,11}收集|喜欢\S{1,19}?请大家收藏)[^\n]*$|\n[^\n]+(?:[退支][出持]阅读模式！|领现金红包！)$|\n[^\n]*(?:[今明][天日早晚][一二两三四五六七八九十加补爆]更(?!天)|[今明][天晚]的更新|求勒个票|新书上传|起点APP|阅读网址|本站访问地址|秒钟记住本小说|本作品来自|更多好书请访|如果觉得此文|向您QQ群和微博|看书即可领现金|书[币友]的?打赏|无弹窗免费|精校小说|全文字小说|按键返回上一页|作者的话：|书友\w{0,5}群：|微信\w{2}号：|\b测试章节！|亲\W本站域名|书籍全\W更新快|加入书签\W方便阅读|章节错误\W点此报送|最快更新\W无弹窗|文字更新\W速度|本章未完\W点击|版权所有\W侵权|最快更新\S{0,16}?最新章|公众号\S{0,16}?领红包)[^\n]*$/g","");
+                // content = content.replaceAll("<br>","");
+                // content = content.replaceAll("\n\n","\n");
+                // contentDiv.innerHTML = content;
+              }
+            }
+          };
+          contentDiv.addEventListener('onwheel' in document ? 'wheel' : 'mousewheel', contentDivOnWheel);
+
+          // 滚动条事件
+          var contentDivOnScroll = throttle(function (e) {
+            var progress = e.target.scrollTop / e.target.scrollHeight;
+            mVscodeHelper.on('progress:update', {
+              progress: progress
+            });
+          }, 1000);
+          contentDiv.addEventListener('scroll', contentDivOnScroll);
+        }
+      })();
+    </script>
+  </body>
+</html>
