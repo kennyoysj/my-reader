@@ -6,10 +6,6 @@ import { template } from '../utils/index';
 import { store } from '../utils/store';
 import * as config from '../utils/config';
 import { TemplatePath } from '../config';
-import {readerDriver as qidian} from './driver/qidian';
-import {readerDriver as biquge} from './driver/biquge';
-import {readerDriver as meigui} from './driver/meigui';
-import { ReaderDriver as ReaderDriverImplements } from '../@types';
 
 class ReaderDriver {
   public getLocalBooks(path: string): Promise<string[]> {
@@ -133,31 +129,28 @@ class ReaderDriver {
     return result;
   }
 
-  private getSearchDriver = function (onlineSite: string): ReaderDriverImplements {
-    console.log(Path.join(__dirname,"../"))
-    const path_dir = Path.join(__dirname,"../")
-    return qidian;
-    // switch (onlineSite) {
-    //   case '起点':
-    //     return path_dir + 'src\\reader\\driver\\biquge';
-    //   case '笔趣阁':
-    //     return path_dir + 'src\\reader\\driver\\biquge';
-    //   default:
-    //     return path_dir + 'src\\reader\\driver\\qidian';
-    // }
+  private getSearchDriver = function (onlineSite: string): string {
+    switch (onlineSite) {
+      case '起点':
+        return 'qidian';
+      case '笔趣阁':
+        return 'biquge';
+      case '玫瑰小说':
+        return 'meigui';
+      default:
+        return 'qidian';
+    }
   };
 
   public search(keyword: string, onlineSite: string): Promise<TreeNode[]> {
-    switch(onlineSite) {
-      case '起点':
-        return qidian.search(keyword);
-      case '笔趣阁':
-        return biquge.search(keyword);;
-      case '玫瑰小说':
-        return meigui.search(keyword);;
-      default:
-        return qidian.search(keyword);
-    }
+    let site = this.getSearchDriver(onlineSite);
+    console.log(site)
+    return new Promise((resolve,reject) => {
+      import('./driver/' +site)
+        .then(({ readerDriver }) => {
+          resolve(readerDriver.search(keyword));
+        });
+    });
   }
 }
 
