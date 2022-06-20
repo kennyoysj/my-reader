@@ -1,13 +1,13 @@
 {
 	"name": "my-reader",
 	"displayName": "my-reader",
-	"description": "基于z-reader二次开发的插件,支持在线搜索(已修复,增加了新的书源)和本地阅读,支持txt格式,基于z-reader",
+	"description": "基于z-reader二次开发的插件,支持在线搜索(增加了新的书源)和本地阅读,支持txt格式,基于z-reader",
 	"engines": {
 		"vscode": "^1.67.0"
 	},
 	"publisher": "kennyOu",
 	"license": "MIT",
-	"version": "1.0.6",
+	"version": "1.0.8",
 	"icon": "static/images/icon-green.png",
 	"qna": "https://github.com/kennyoysj/my-reader/issues",
 	"bugs": {

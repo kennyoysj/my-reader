@@ -3,8 +3,8 @@ import request from '../../../utils/request';
 import { TreeNode, defaultTreeNode } from '../../../explorer/TreeNode';
 import { ReaderDriver as ReaderDriverImplements } from '../../../@types';
 
-const DOMAIN = 'https://www.biqudu.net';
-const DOMAIN2 = 'https://www.biqudu.net';
+const DOMAIN = 'https://www.ishubao.org/';
+const DOMAIN2 = 'https://www.ishubao.org/';
 
 class ReaderDriver implements ReaderDriverImplements {
   public hasChapter() {
@@ -14,24 +14,28 @@ class ReaderDriver implements ReaderDriverImplements {
   public async search(keyword: string): Promise<TreeNode[]> {
     const result: TreeNode[] = [];
     try {
-      const res = await request.send(DOMAIN2 + '/searchbook.php?keyword=' + encodeURI(keyword));
+      const res = await request.send(DOMAIN2 + '/modules/article/search.php?s=12839966820499815668&entry=1&ie=gbk&q=' + encodeURI(keyword));
       const $ = cheerio.load(res.body);
-      $('#main .novelslist2 li').each(function (i: number, elem: any) {
-        const title = $(elem).find('span.s2 a').text();
-        const author = $(elem).find('span.s4').text();
-        const link = $(elem).find('span.s2 a').attr();
-        if(link) {
-          const path = link.href;
-          result.push(
-            new TreeNode(
-              Object.assign({}, defaultTreeNode, {
-                type: '.biquge',
-                name: `${title} - ${author}`,
-                isDirectory: true,
-                path
-              })
-            )
-          );
+      $('.grid tr').each(function (i: number, elem: any) {
+        try {
+          const title = $(elem).find('td a:eq(0)').text();
+          const author = $(elem).find('td:eq(2)').text();
+          const path = $(elem).find('td a:eq(0)').attr('href');
+          console.log(path)
+          if(path) {
+            result.push(
+              new TreeNode(
+                Object.assign({}, defaultTreeNode, {
+                  type: '.biquge',
+                  name: `${title} - ${author}`,
+                  isDirectory: true,
+                  path
+                })
+              )
+            );
+          }
+        } catch (error) {
+          console.warn(error)
         }
       });
     } catch (error) {
@@ -43,13 +47,12 @@ class ReaderDriver implements ReaderDriverImplements {
   public async getChapter(pathStr: string): Promise<TreeNode[]> {
     const result: TreeNode[] = [];
     try {
-      const res = await request.send(DOMAIN + pathStr);
+      const res = await request.send(pathStr);
       const $ = cheerio.load(res.body);
-      $('#list dd').each(function (i: number, elem: any) {
+      $('#chapterlist li').each(function (i: number, elem: any) {
         const name = $(elem).find('a').text();
-        const a = $(elem).find('a').attr();
-        if(a) {
-          const path = a.href;
+        const path = $(elem).find('a').attr('href');
+        if(path) {
           result.push(
             new TreeNode(
               Object.assign({}, defaultTreeNode, {
@@ -73,7 +76,7 @@ class ReaderDriver implements ReaderDriverImplements {
     try {
       const res = await request.send(DOMAIN + pathStr);
       const $ = cheerio.load(res.body);
-      const html = $('#content').html();
+      const html = $('#book_text').html();
       result = html ? html : '';
     } catch (error) {
       console.warn(error);

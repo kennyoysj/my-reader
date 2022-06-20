@@ -2,9 +2,7 @@ import * as cheerio from 'cheerio';
 import request from '../../../utils/request';
 import { TreeNode, defaultTreeNode } from '../../../explorer/TreeNode';
 import { ReaderDriver as ReaderDriverImplements } from '../../../@types';
-import StreamZip = require("node-stream-zip")
 import AdmZip = require('adm-zip');
-import { each } from 'cheerio/lib/api/traversing';
 
 const DOMAIN = 'https://api.meiguixsapp.com';
 
