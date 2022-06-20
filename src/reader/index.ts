@@ -144,7 +144,6 @@ class ReaderDriver {
 
   public search(keyword: string, onlineSite: string): Promise<TreeNode[]> {
     let site = this.getSearchDriver(onlineSite);
-    console.log(site)
     return new Promise((resolve,reject) => {
       import('./driver/' +site)
         .then(({ readerDriver }) => {
