@@ -76,7 +76,6 @@ class ReaderDriver implements ReaderDriverImplements {
     try {
       const res = await request.send(pathStr);
       const html = res.body;
-      console.log(html)
       result = html ? html : '';
     } catch (error) {
       console.warn(error);
