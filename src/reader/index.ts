@@ -56,7 +56,7 @@ class ReaderDriver {
           });
           let content = html;
           try {
-            let content_old = content.replace(/\\n/g,"<br/>").replace(/(<br\/>)(&nbsp;)+(<br\/>)/g,'<br/>');
+            let content_old = content.replace(/\\n/g,"<br/>").replace(/(<br( )*\/>)/g,'<br/>').replace(/(<br\/>)(&nbsp;)+(<br\/>)/g,'<br/>');
             content = content_old.replace(/<br[.^\/]*\/>/g,"<br/>").replace(/<br\/><br\/><br\/>/g,"<br/><br/>");
             while(content_old !== content) {
               content_old = content;
